@@ -118,7 +118,11 @@ export function icalEventToTask(
   icalEvent: WithIcalConfig<ical.VEvent>,
   date: Date,
 ): RemoteTask | WithTime<RemoteTask> {
-  let startTimeAdjusted = window.moment(date);
+  const isAllDayEvent = icalEvent.datetype === "date";
+
+  let startTimeAdjusted = isAllDayEvent
+    ? window.moment(date).startOf("day")
+    : window.moment(date);
   const tzid = icalEvent.rrule?.origOptions?.tzid;
 
   if (tzid) {
@@ -126,7 +130,6 @@ export function icalEventToTask(
     startTimeAdjusted = adjustForOtherZones(tzid, startTimeAdjusted.toDate());
   }
 
-  const isAllDayEvent = icalEvent.datetype === "date";
   const rsvpStatus = getRsvpStatus(icalEvent, icalEvent.calendar.email);
 
   return {
