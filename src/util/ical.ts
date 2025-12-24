@@ -24,8 +24,7 @@ export function canHappenAfter(icalEvent: ical.VEvent, date: Date) {
   }
 
   return (
-    icalEvent.rrule.options.until === null ||
-    icalEvent.rrule.options.until >= date
+    !icalEvent.rrule.options.until || icalEvent.rrule.options.until >= date
   );
 }
 
