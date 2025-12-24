@@ -1,5 +1,4 @@
 import { type Moment } from "moment";
-import { tz } from "moment-timezone";
 import ical, { type AttendeePartStat } from "node-ical";
 
 import { fallbackPartStat, icalDayKeyFormat } from "../constants";
@@ -124,15 +123,9 @@ export function icalEventToTask(
 ): RemoteTask | WithTime<RemoteTask> {
   const isAllDayEvent = icalEvent.datetype === "date";
 
-  let startTimeAdjusted = isAllDayEvent
+  const startTimeAdjusted = isAllDayEvent
     ? window.moment(date).startOf("day")
     : window.moment(date);
-  const tzid = icalEvent.rrule?.origOptions?.tzid;
-
-  if (tzid) {
-    startTimeAdjusted = adjustForDst(tzid, icalEvent.start, date);
-    startTimeAdjusted = adjustForOtherZones(tzid, startTimeAdjusted.toDate());
-  }
 
   const rsvpStatus = getRsvpStatus(icalEvent, icalEvent.calendar.email);
 
@@ -164,39 +157,4 @@ function getRsvpStatus(event: ical.VEvent, email?: string): AttendeePartStat {
   }
 
   return attendeeWithMatchingEmail?.params.PARTSTAT || fallbackPartStat;
-}
-
-function adjustForOtherZones(tzid: string, currentDate: Date) {
-  const localTzid = tz.guess();
-
-  if (tzid === localTzid) {
-    return window.moment(currentDate);
-  }
-
-  const localTimezone = tz.zone(localTzid);
-  const originalTimezone = tz.zone(tzid);
-
-  if (!localTimezone || !originalTimezone) {
-    return window.moment(currentDate);
-  }
-
-  const offset =
-    localTimezone.utcOffset(currentDate.getTime()) -
-    originalTimezone.utcOffset(currentDate.getTime());
-
-  return window.moment(currentDate).add(offset, "minutes");
-}
-
-function adjustForDst(tzid: string, originalDate: Date, currentDate: Date) {
-  const timezone = tz.zone(tzid);
-
-  if (!timezone) {
-    return window.moment(currentDate);
-  }
-
-  const offset =
-    timezone.utcOffset(currentDate.getTime()) -
-    timezone.utcOffset(originalDate.getTime());
-
-  return window.moment(currentDate).add(offset, "minutes");
 }
