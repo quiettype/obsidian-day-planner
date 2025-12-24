@@ -700,10 +700,10 @@
         "embed": false,
         "type": "file"
       },
-      "text": "Task\n```yaml\nplanner:\nlog:\n- start: 2025-01-01 13:00\nend: 2025-01-01 15:00\n- start: 2025-01-01 17:00\nend: 2025-01-01 18:00\n```",
+      "text": "Task\r\n  ```yaml\r\n  planner:\r\n    log:\r\n      - start: 2025-07-19 12:00\r\n        end: 2025-07-19 14:30\r\n      - start: 2025-07-19 15:00\r\n        end: 2025-07-19 16:30\r\n      - start: 2025-07-19 13:00\r\n        end: 2025-07-19 16:30\r\n  ```",
       "tags": [],
       "line": 0,
-      "lineCount": 9,
+      "lineCount": 11,
       "list": 0,
       "outlinks": [],
       "path": "fixtures/fixture-vault/one-task-two-log-records.md",
@@ -717,9 +717,9 @@
           "offset": 0
         },
         "end": {
-          "line": 8,
+          "line": 10,
           "col": 5,
-          "offset": 170
+          "offset": 244
         }
       },
       "subtasks": [],
@@ -1630,10 +1630,10 @@
         "embed": false,
         "type": "file"
       },
-      "text": "Task\n```yaml\nplanner:\nlog:\n- start: 2025-01-01 13:00\nend: 2025-01-01 15:00\n- start: 2025-01-01 17:00\nend: 2025-01-01 18:00\n```",
+      "text": "Task\r\n  ```yaml\r\n  planner:\r\n    log:\r\n      - start: 2025-07-19 12:00\r\n        end: 2025-07-19 14:30\r\n      - start: 2025-07-19 15:00\r\n        end: 2025-07-19 16:30\r\n      - start: 2025-07-19 13:00\r\n        end: 2025-07-19 16:30\r\n  ```",
       "tags": [],
       "line": 0,
-      "lineCount": 9,
+      "lineCount": 11,
       "list": 0,
       "outlinks": [],
       "path": "fixtures/fixture-vault/one-task-two-log-records.md",
@@ -1647,9 +1647,9 @@
           "offset": 0
         },
         "end": {
-          "line": 8,
+          "line": 10,
           "col": 5,
-          "offset": 170
+          "offset": 244
         }
       },
       "subtasks": [],
@@ -2283,9 +2283,9 @@
               "offset": 0
             },
             "end": {
-              "line": 8,
+              "line": 10,
               "col": 5,
-              "offset": 170
+              "offset": 244
             }
           }
         }

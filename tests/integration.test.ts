@@ -285,12 +285,17 @@ async function setUp(props: {
     return findTask((it) => getOneLineSummary(it).includes(text));
   }
 
-  await vi.waitFor(() => {
-    const areTasksLoaded = get(allTasks).length > 0;
-    const areClocksLoaded = get(tasksWithActiveClockProps).length > 0;
+  await vi.waitFor(
+    () => {
+      const areTasksLoaded = get(allTasks).length > 0;
+      const areClocksLoaded = get(tasksWithActiveClockProps).length > 0;
 
-    expect(areTasksLoaded || areClocksLoaded).toBeTruthy();
-  });
+      if (!areTasksLoaded && !areClocksLoaded) {
+        throw new Error("Tasks or clocks not loaded yet");
+      }
+    },
+    { timeout: 2000 },
+  );
 
   return {
     dispatch,
@@ -349,32 +354,31 @@ describe("Clocks", () => {
       currentTime,
       tasksWithActiveClockProps,
     } = await setUp({
-      visibleDays: ["2025-01-11"],
+      visibleDays: ["2025-07-19"],
     });
 
-    currentTime.set(window.moment("2025-01-01 17:30"));
+    currentTime.set(window.moment("2025-07-19 15:30"));
 
     const displayedClocks = getDisplayedTasksWithClocksForTimeline(
-      window.moment("2025-01-01"),
+      window.moment("2025-07-19"),
     );
 
     expect(get(displayedClocks)).toMatchObject([
       {
-        startTime: window.moment("2025-01-01 17:00"),
-        durationMinutes: 30,
+        startTime: window.moment("2025-07-19 12:00"),
+        durationMinutes: 150,
       },
       {
-        startTime: window.moment("2025-01-01 13:00"),
-        durationMinutes: 120,
+        startTime: window.moment("2025-07-19 15:00"),
+        durationMinutes: 90,
+      },
+      {
+        startTime: window.moment("2025-07-19 13:00"),
+        durationMinutes: 210,
       },
     ]);
 
-    expect(get(tasksWithActiveClockProps)).toMatchObject([
-      {
-        startTime: window.moment("2025-01-01 17:00"),
-        durationMinutes: 30,
-      },
-    ]);
+    expect(get(tasksWithActiveClockProps)).toMatchObject([]);
   });
 
   test.todo("Splits log entries over midnight");

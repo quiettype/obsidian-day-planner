@@ -17,7 +17,7 @@ export function canHappenAfter(icalEvent: ical.VEvent, date: Date) {
 
   return (
     icalEvent.rrule.options.until === null ||
-    icalEvent.rrule.options.until > date
+    icalEvent.rrule.options.until >= date
   );
 }
 
@@ -40,7 +40,7 @@ function hasExceptionForDate(icalEvent: ical.VEvent, date: Date) {
 
   // NOTE: exdate contains floating dates, i.e. any UTC offset that's on them
   // must be ignored, and we should treat them as local time
-  const asMoment = window.moment(date);
+  const asMoment = moment(date);
   const utcOffset = asMoment.utcOffset();
   const dateWithoutOffset = asMoment.clone().subtract(utcOffset, "minutes");
 
@@ -49,7 +49,7 @@ function hasExceptionForDate(icalEvent: ical.VEvent, date: Date) {
       throw new Error("Unexpected exdate format");
     }
 
-    return window.moment(exceptionDate).isSame(dateWithoutOffset, "day");
+    return moment(exceptionDate).isSame(dateWithoutOffset, "day");
   });
 }
 
@@ -79,7 +79,11 @@ export function icalEventToTasksForRange(
   }, []);
 
   const recurrences = icalEvent.rrule
-    .between(start.toDate(), end.clone().add(1, "day").toDate()) // Note: this calculation is very slow
+    .between(
+      start.toDate(),
+      end.clone().add(1, "day").subtract(1, "ms").toDate(),
+      true,
+    ) // Note: this calculation is very slow
     .filter(
       (date) =>
         !hasRecurrenceOverrideForDate(icalEvent, date) &&
@@ -101,8 +105,8 @@ function onceOffIcalEventToTaskForRange(
   const startOfRange = start.clone().startOf("day");
   const endOfRangeExclusive = end.clone().add(1, "day").startOf("day");
 
-  const eventStart = window.moment(icalEvent.start);
-  const eventEnd = window.moment(icalEvent.end);
+  const eventStart = moment(icalEvent.start);
+  const eventEnd = moment(icalEvent.end);
 
   if (
     m.doesOverlapWithRange(
@@ -121,8 +125,8 @@ export function icalEventToTask(
   const isAllDayEvent = icalEvent.datetype === "date";
 
   let startTimeAdjusted = isAllDayEvent
-    ? window.moment(date).startOf("day")
-    : window.moment(date);
+    ? moment(date).startOf("day")
+    : moment(date);
   const tzid = icalEvent.rrule?.origOptions?.tzid;
 
   if (tzid) {

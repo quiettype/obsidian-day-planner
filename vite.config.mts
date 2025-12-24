@@ -4,6 +4,7 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
 import { isNotVoid } from "typed-assert";
 import replace from "vite-plugin-filter-replace";
+import { fileURLToPath } from "node:url";
 import fs from "node:fs";
 
 export default defineConfig((env) => ({
@@ -87,7 +88,7 @@ export default defineConfig((env) => ({
       include: ["src/**/*.ts"],
     },
     alias: {
-      obsidian: new URL("./__mocks__/obsidian.ts", import.meta.url).pathname,
+      obsidian: fileURLToPath(new URL("./__mocks__/obsidian.ts", import.meta.url)),
     },
   },
 }));

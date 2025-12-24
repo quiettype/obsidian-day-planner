@@ -11,13 +11,18 @@ exports[`Editing > Daily notes > * Moves a nested task with text between notes
 +     Child text
 ",
   "fixtures/fixture-vault/2025-07-28.md": "
+- # Day planner
+- 
 - - [ ] 10:00 - 11:00 Before
++ # Day planner
 ...
 -   Parent text
 -     - [ ] Child
 -       Child text
+- - [ ] 12:00 - 13:00 After
 +     Parent text
 + - [ ] 10:00 - 11:00 Before
++ - [ ] 12:00 - 13:00 After
 ",
 }
 `;

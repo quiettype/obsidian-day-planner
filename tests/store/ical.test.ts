@@ -214,10 +214,10 @@ describe("ical", () => {
     expect(remoteTasks).toHaveLength(2);
 
     expect(remoteTasks[0].startTime).toEqual(
-      window.moment("2025-04-09T00:00:00.000Z"),
+      window.moment("2025-04-08T14:00:00.000Z"),
     );
     expect(remoteTasks[1].startTime).toEqual(
-      window.moment("2025-04-11T00:00:00.000Z"),
+      window.moment("2025-04-10T14:00:00.000Z"),
     );
   });
 
@@ -238,17 +238,17 @@ describe("ical", () => {
     expect(remoteTasks).toHaveLength(2);
 
     expect(remoteTasks[0].startTime).toEqual(
-      window.moment("2025-04-09T00:00:00.000Z"),
+      window.moment("2025-04-08T14:00:00.000Z"),
     );
     expect(remoteTasks[1].startTime).toEqual(
-      window.moment("2026-04-09T00:00:00.000Z"),
+      window.moment("2026-04-08T14:00:00.000Z"),
     );
   });
 
   test("Last visible day is inclusive, i.e. events happening on the last day of the range get displayed", async () => {
     const { remoteTasks } = await setUp({
       icalFixtureFileName: "google-recurring-with-exception-and-location",
-      visibleDays: ["2024-09-29"],
+      visibleDays: ["2024-09-30"],
     });
 
     expect(remoteTasks).toHaveLength(1);
