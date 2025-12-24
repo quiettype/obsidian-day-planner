@@ -1,4 +1,4 @@
-import moment, { type Moment } from "moment";
+import { type Moment } from "moment";
 import { tz } from "moment-timezone";
 import ical, { type AttendeePartStat } from "node-ical";
 
@@ -30,7 +30,7 @@ function hasRecurrenceOverrideForDate(icalEvent: ical.VEvent, date: Date) {
 }
 
 function getIcalDayKey(date: Date) {
-  return moment(date).format(icalDayKeyFormat);
+  return window.moment(date).format(icalDayKeyFormat);
 }
 
 function hasExceptionForDate(icalEvent: ical.VEvent, date: Date) {
@@ -40,7 +40,7 @@ function hasExceptionForDate(icalEvent: ical.VEvent, date: Date) {
 
   // NOTE: exdate contains floating dates, i.e. any UTC offset that's on them
   // must be ignored, and we should treat them as local time
-  const asMoment = moment(date);
+  const asMoment = window.moment(date);
   const utcOffset = asMoment.utcOffset();
   const dateWithoutOffset = asMoment.clone().subtract(utcOffset, "minutes");
 
@@ -49,7 +49,7 @@ function hasExceptionForDate(icalEvent: ical.VEvent, date: Date) {
       throw new Error("Unexpected exdate format");
     }
 
-    return moment(exceptionDate).isSame(dateWithoutOffset, "day");
+    return window.moment(exceptionDate).isSame(dateWithoutOffset, "day");
   });
 }
 
@@ -105,8 +105,8 @@ function onceOffIcalEventToTaskForRange(
   const startOfRange = start.clone().startOf("day");
   const endOfRangeExclusive = end.clone().add(1, "day").startOf("day");
 
-  const eventStart = moment(icalEvent.start);
-  const eventEnd = moment(icalEvent.end);
+  const eventStart = window.moment(icalEvent.start);
+  const eventEnd = window.moment(icalEvent.end);
 
   if (
     m.doesOverlapWithRange(
@@ -125,8 +125,8 @@ export function icalEventToTask(
   const isAllDayEvent = icalEvent.datetype === "date";
 
   let startTimeAdjusted = isAllDayEvent
-    ? moment(date).startOf("day")
-    : moment(date);
+    ? window.moment(date).startOf("day")
+    : window.moment(date);
   const tzid = icalEvent.rrule?.origOptions?.tzid;
 
   if (tzid) {
@@ -170,33 +170,33 @@ function adjustForOtherZones(tzid: string, currentDate: Date) {
   const localTzid = tz.guess();
 
   if (tzid === localTzid) {
-    return moment(currentDate);
+    return window.moment(currentDate);
   }
 
   const localTimezone = tz.zone(localTzid);
   const originalTimezone = tz.zone(tzid);
 
   if (!localTimezone || !originalTimezone) {
-    return moment(currentDate);
+    return window.moment(currentDate);
   }
 
   const offset =
     localTimezone.utcOffset(currentDate.getTime()) -
     originalTimezone.utcOffset(currentDate.getTime());
 
-  return moment(currentDate).add(offset, "minutes");
+  return window.moment(currentDate).add(offset, "minutes");
 }
 
 function adjustForDst(tzid: string, originalDate: Date, currentDate: Date) {
   const timezone = tz.zone(tzid);
 
   if (!timezone) {
-    return moment(currentDate);
+    return window.moment(currentDate);
   }
 
   const offset =
     timezone.utcOffset(currentDate.getTime()) -
     timezone.utcOffset(originalDate.getTime());
 
-  return moment(currentDate).add(offset, "minutes");
+  return window.moment(currentDate).add(offset, "minutes");
 }
