@@ -63,14 +63,39 @@ export const selectAllIcalEventsWithIcalConfigs = createSelector(
   (rawIcals) =>
     rawIcals.flatMap(
       ({ icalConfig, text }): Array<WithIcalConfig<ical.VEvent>> => {
-        const parsed = ical.parseICS(text);
+        let parsed: Record<string, unknown>;
+        try {
+          parsed = ical.parseICS(text);
+        } catch (error) {
+          console.error("Error parsing ICS:", error);
+          return [];
+        }
 
-        return Object.values(parsed)
-          .filter(isVEvent)
-          .map((icalEvent) => ({
-            ...icalEvent,
-            calendar: icalConfig,
-          }));
+        const events: ical.VEvent[] = [];
+        const stack = Object.values(parsed);
+
+        while (stack.length > 0) {
+          const item = stack.pop();
+          if (!item || typeof item !== "object") continue;
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if (isVEvent(item as any)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            events.push(item as any);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } else if ((item as any).type === "VCALENDAR") {
+            Object.values(item).forEach((child) => {
+              if (typeof child === "object" && child !== null) {
+                stack.push(child);
+              }
+            });
+          }
+        }
+
+        return events.map((icalEvent) => ({
+          ...icalEvent,
+          calendar: icalConfig,
+        }));
       },
     ),
 );
