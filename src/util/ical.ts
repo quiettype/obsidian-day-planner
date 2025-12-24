@@ -85,23 +85,32 @@ export function icalEventToTasksForRange(
     return result;
   }, []);
 
-  const recurrences = icalEvent.rrule
-    .between(
-      start.toDate(),
-      end.clone().add(1, "day").subtract(1, "ms").toDate(),
-      true,
-    ) // Note: this calculation is very slow
-    .filter(
-      (date) =>
-        !hasRecurrenceOverrideForDate(icalEvent, date) &&
-        !hasExceptionForDate(icalEvent, date),
+  try {
+    if (typeof icalEvent.rrule.between !== "function") {
+      throw new Error("Invalid rrule object");
+    }
+
+    const recurrences = icalEvent.rrule
+      .between(
+        start.toDate(),
+        end.clone().add(1, "day").subtract(1, "ms").toDate(),
+        true,
+      ) // Note: this calculation is very slow
+      .filter(
+        (date) =>
+          !hasRecurrenceOverrideForDate(icalEvent, date) &&
+          !hasExceptionForDate(icalEvent, date),
+      );
+
+    const tasksFromRecurrences = recurrences.map((date) =>
+      icalEventToTask(icalEvent, date),
     );
 
-  const tasksFromRecurrences = recurrences.map((date) =>
-    icalEventToTask(icalEvent, date),
-  );
-
-  return tasksFromRecurrences.concat(tasksFromRecurrenceOverrides);
+    return tasksFromRecurrences.concat(tasksFromRecurrenceOverrides);
+  } catch (error) {
+    console.error("Error processing recurring event:", error, icalEvent);
+    return tasksFromRecurrenceOverrides;
+  }
 }
 
 function onceOffIcalEventToTaskForRange(
