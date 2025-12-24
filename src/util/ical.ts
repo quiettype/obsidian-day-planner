@@ -1,4 +1,4 @@
-import { type Moment } from "moment";
+import moment, { type Moment } from "moment";
 import ical, { type AttendeePartStat } from "node-ical";
 
 import { fallbackPartStat, icalDayKeyFormat } from "../constants";
@@ -8,6 +8,15 @@ import type { WithIcalConfig } from "../types";
 import { getId } from "./id";
 import { liftToArray } from "./lift";
 import * as m from "./moment";
+
+const getMoment = (date: Date | Moment | string | number) => {
+  // @ts-ignore
+  if (typeof window !== "undefined" && window.moment) {
+    // @ts-ignore
+    return window.moment(date);
+  }
+  return moment(date);
+};
 
 export function canHappenAfter(icalEvent: ical.VEvent, date: Date) {
   if (!icalEvent.rrule) {
@@ -29,7 +38,7 @@ function hasRecurrenceOverrideForDate(icalEvent: ical.VEvent, date: Date) {
 }
 
 function getIcalDayKey(date: Date) {
-  return window.moment(date).format(icalDayKeyFormat);
+  return getMoment(date).format(icalDayKeyFormat);
 }
 
 function hasExceptionForDate(icalEvent: ical.VEvent, date: Date) {
@@ -39,7 +48,7 @@ function hasExceptionForDate(icalEvent: ical.VEvent, date: Date) {
 
   // NOTE: exdate contains floating dates, i.e. any UTC offset that's on them
   // must be ignored, and we should treat them as local time
-  const asMoment = window.moment(date);
+  const asMoment = getMoment(date);
   const utcOffset = asMoment.utcOffset();
   const dateWithoutOffset = asMoment.clone().subtract(utcOffset, "minutes");
 
@@ -48,7 +57,7 @@ function hasExceptionForDate(icalEvent: ical.VEvent, date: Date) {
       throw new Error("Unexpected exdate format");
     }
 
-    return window.moment(exceptionDate).isSame(dateWithoutOffset, "day");
+    return getMoment(exceptionDate).isSame(dateWithoutOffset, "day");
   });
 }
 
@@ -104,8 +113,8 @@ function onceOffIcalEventToTaskForRange(
   const startOfRange = start.clone().startOf("day");
   const endOfRangeExclusive = end.clone().add(1, "day").startOf("day");
 
-  const eventStart = window.moment(icalEvent.start);
-  const eventEnd = window.moment(icalEvent.end);
+  const eventStart = getMoment(icalEvent.start);
+  const eventEnd = getMoment(icalEvent.end);
 
   if (
     m.doesOverlapWithRange(
@@ -124,8 +133,8 @@ export function icalEventToTask(
   const isAllDayEvent = icalEvent.datetype === "date";
 
   const startTimeAdjusted = isAllDayEvent
-    ? window.moment(date).startOf("day")
-    : window.moment(date);
+    ? getMoment(date).startOf("day")
+    : getMoment(date);
 
   const rsvpStatus = getRsvpStatus(icalEvent, icalEvent.calendar.email);
 
